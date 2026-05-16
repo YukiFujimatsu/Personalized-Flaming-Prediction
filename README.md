@@ -5,6 +5,41 @@ IIAI AAI 2025 Winterに採録された、文章の炎上リスクをリアルタ
 ## 🌟 プロジェクト概要
 SNS等における「炎上」や「不快感」の基準は、人それぞれの価値観によって異なります。本プロジェクトでは、判定基準となるデータセットを入れ替えるだけで、ユーザー個人の基準に最適化したリスク判定をリアルタイムで行うモデルを提案しました。
 
+### システムアーキテクチャ (System Architecture)
+
+```mermaid
+flowchart LR
+  %% 1. 事前準備
+  subgraph PRE["事前準備（Offline / Vector Caching）"]
+    direction LR
+    ok_db[(OK テキストデータ)] --> embed_fn_offline[テキスト埋め込み関数]
+    ng_db[(NG テキストデータ)] --> embed_fn_offline
+    embed_fn_offline --> vector_db[(埋め込みテキストデータベース)]
+  end
+
+  %% 2. リアルタイム推論
+  subgraph ONLINE["リアルタイム推論（Online / Real-time Inference）"]
+    direction TB
+    user((ユーザー))
+    text_data((テキストデータ))
+    embed_fn_online[テキスト埋め込み関数]
+    embed_data((埋め込みデータ))
+    sim_fn[類似度計算関数]
+    vis_fn[結果可視化関数]
+
+    user --> text_data
+    text_data --> embed_fn_online
+    embed_fn_online --> embed_data
+    embed_data --> sim_fn
+    sim_fn --> vis_fn
+    vis_fn --> user
+  end
+
+  %% 左のデータベースから右の類似度計算へデータを渡す
+  vector_db -. 参照 .-> sim_fn
+
+```
+
 ## 🚀 特徴
 - **パーソナライズ判定**: 比較対象となるデータセット（Safe/Out）を差し替えるだけで、個別の価値観に基づいた判定が可能です。
 - **BERT + Mean Pooling**: BERTから得られる分散表現をMean Poolingで圧縮し、文全体の意味を捉えた高精度なベクトルを抽出します。
