@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
     safe_vec_all = vector_data['safe_vec_all']
     out_vec_all = vector_data['out_vec_all']
     
-    # 2. テキスト・属性・パラメータデータのロード（★教えていただいたキー名に完全同期）
+    # 2. テキスト・属性・パラメータデータのロード
     with open("data/texts_label_data.pkl", 'rb') as f:
         cache_data = pickle.load(f)
         
